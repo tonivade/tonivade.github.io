@@ -1,0 +1,12 @@
+# Site settings
+title: cat tonivade > /dev/blog
+email: antoniogmc@gmail.com
+description: > # this means to ignore newlines until "baseurl:"
+  Personal Weblog, about software development, technology and much more
+baseurl: "/blog/" # the subpath of your site, e.g. /blog/
+url: "http://tonivade.github.io" # the base hostname & protocol for your site
+twitter_username: tonivade
+github_username:  tonivade
+
+# Build settings
+markdown: kramdown
