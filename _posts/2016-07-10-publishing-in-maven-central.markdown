@@ -2,7 +2,7 @@
 layout: post
 title:  "Publishing in maven central"
 date:   2016-07-10 17:57:36
-categories: jekyll update
+categories: java maven
 ---
 Recently, I've published some artifacts to maven central for first time, and I would like to explain the problems and downsides I've faced.
 
