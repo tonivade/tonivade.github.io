@@ -4,7 +4,7 @@ email: me@tonivade.es
 description: > # this means to ignore newlines until "baseurl:"
   Personal Weblog, about software development, technology and much more
 baseurl: "" # the subpath of your site, e.g. /blog/
-url: "http://blog.tonivade.es" # the base hostname & protocol for your site
+url: "https://blog.tonivade.es" # the base hostname & protocol for your site
 github_username:  tonivade
 mastodon_username: tonivade
 
