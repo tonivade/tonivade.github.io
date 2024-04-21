@@ -1,10 +1,10 @@
 # Site settings
 title: cat tonivade > /dev/blog
-email: tonivade@protonmail.com
+email: me@tonivade.es
 description: > # this means to ignore newlines until "baseurl:"
   Personal Weblog, about software development, technology and much more
 baseurl: "" # the subpath of your site, e.g. /blog/
-url: "http://tonivade.github.io" # the base hostname & protocol for your site
+url: "http://blog.tonivade.es" # the base hostname & protocol for your site
 github_username:  tonivade
 mastodon_username: tonivade
 
