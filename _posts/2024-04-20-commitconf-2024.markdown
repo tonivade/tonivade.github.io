@@ -1,0 +1,12 @@
+---
+layout: post
+title:  "CommitConf 2024"
+date:   2024-04-20 16:19:00
+categories: jekyll update
+---
+Otro año más he podido estar presente en la #commitconf. Me gusta por el ambiente
+y por reencontrarme con antiguos compañeros de trabajo. Además este año he podido
+presentar mi charla, lo cual para mi ha sido para mi un autentico reto.
+
+Aquí dejo un enlace a las slides en [html](https://tonivade.es/commitconf24/slides.html) 
+o [pdf](https://tonivade.es/commitconf24/slides.pdf) de la charla.
