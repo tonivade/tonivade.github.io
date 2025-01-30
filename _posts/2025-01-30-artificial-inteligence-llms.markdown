@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Inteligencia Artificial, la web, la privacidad y el fediverso"
-date:   2024-04-20 16:19:00
+date:   2025-01-30 22:23:00
 categories: ia web fediverse privacy
 ---
 Honestamente, me estoy quedando atrás en la carrera por usar la última novedad sobre inteligencia artificial. Especialmente en mi trabajo, este tipo de herramientas son realmente disruptivas. Hacen cosas increibles, pero por otra parte, también son capaces de hacer auténticas aberraciones. Ahí entra el criterio del usuario y la capacidad de tomar las decisiones de qué es válido y que es morralla.
