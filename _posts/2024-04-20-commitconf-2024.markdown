@@ -2,7 +2,7 @@
 layout: post
 title:  "CommitConf 2024"
 date:   2024-04-20 16:19:00
-categories: jekyll update
+categories: commitconf24 java programming
 ---
 Otro año más he podido estar presente en la #commitconf. Me gusta por el ambiente
 y por reencontrarme con antiguos compañeros de trabajo. Además este año he podido
