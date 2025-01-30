@@ -4,8 +4,15 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](http://jekyllrb.com/)
+Hi there 👋!
 
-You can find the source code for the Jekyll new theme at: [github.com/jglovier/jekyll-new](https://github.com/jglovier/jekyll-new)
+I'm a seasoned software programmer working now in backend development. I started to code when I was a teenager and have been programming ever since. My journey has taken me through various languages, from BASIC to Scala passing thought Java.
+In my free time, I enjoy reading science fiction books (mainly Isaac Asimov and other classic authors like Arthur C. Clarke, Robert A. Heinlein, etc...). I'm always looking for new challenges and opportunities to learn and grow as a developer.
 
-You can find the source code for Jekyll at [github.com/jekyll/jekyll](https://github.com/jekyll/jekyll)
+Contact me at:
+
+* me@tonivade.es
+* https://github.com/tonivade
+* https://jvm.social/@tonivade
+
+I hope you enjoy my blog! Let's connect and share our knowledge. 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
