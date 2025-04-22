@@ -4,7 +4,7 @@ title:  "CommitConf 2025"
 date:   2025-04-05 21:00:00
 categories: commitconf java programming
 ---
-Segundo año consecutivo que he podido presentar una charla en la commitconf. Muy agradecido a la organización por volver a confiar en mi, y muchas gracias también a los voluntarios y organizadores que han hecho posible otro año más esta conferencia hecha por la comunidad para la comunidad.
+Segundo año consecutivo que he podido presentar una charla en la commitconf. Muy agradecido a la organización por volver a confiar en mí, y muchas gracias también a los voluntarios y organizadores que han hecho posible otro año más esta conferencia hecha por la comunidad para la comunidad.
 
 Aquí dejo enlaces a las slides en [html](https://tonivade.es/commitconf25/slides.html) 
 o [pdf](https://tonivade.es/commitconf25/slides.pdf) de la charla.
