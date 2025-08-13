@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Hackeando el router"
-date:   2025-08-13 20:00:00
+date:   2025-08-13 19:00:00
 categories: python programming
 ---
 
