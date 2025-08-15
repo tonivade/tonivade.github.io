@@ -7,6 +7,7 @@ baseurl: "" # the subpath of your site, e.g. /blog/
 url: "https://blog.tonivade.es" # the base hostname & protocol for your site
 github_username:  tonivade
 mastodon_username: tonivade
+permalink: /:year/:month/:day/:title:output_ext
 
 # Build settings
 markdown: kramdown
