@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Talks
-permalink: /taks/
+permalink: /talks/
 ---
 
 Here it is a list of my talks:
