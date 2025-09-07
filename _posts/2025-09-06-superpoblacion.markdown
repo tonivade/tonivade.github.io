@@ -41,7 +41,7 @@ esta se reduciría dramáticamente debido al hambre, las enfermedades y la guerr
 - 2020: 7890 millones de personas → 12,3%
 - 2023: 8090 millones de personas → 2,5%
 
-[img src="https://population.un.org/wpp/assets/graphs/1_Demographic%20Profiles/World/Line%20Charts/1-Total%20population.png" alt="Población mundial 1950-2100" style="max-width: 100%; height: auto;"]
+[![Población mundial 1950-2100](https://population.un.org/wpp/assets/graphs/1_Demographic%20Profiles/World/Line%20Charts/1-Total%20population.png)]
 
 Parece que la tendencia es que la tasa de crecimiento de la población mundial está disminuyendo, 
 pero aún así es alta. En 1980 la tasa de crecimiento anual era del 1,8%, en 2023 es del 0,8%. Esto 
@@ -49,7 +49,7 @@ significa que la población mundial sigue creciendo, pero a un ritmo más lento.
 proyecciones de la ONU, la población mundial alcanzará su pico alrededor de 10,4 mil millones cerca
 del fin del siglo XXI, y luego comenzará a disminuir.
 
-[img src="https://population.un.org/wpp/assets/graphs/1_Demographic%20Profiles/World/Line%20Charts/3-Annual%20rate%20of%20population%20change.png" alt="Tasa crecimiento anual 1950-2100" style="max-width: 100%; height: auto;"]
+[![Tasa crecimiento anual 1950-2100](https://population.un.org/wpp/assets/graphs/1_Demographic%20Profiles/World/Line%20Charts/3-Annual%20rate%20of%20population%20change.png)]
 
 Yo no llegaré a verlo, pero si esto se cumple, posiblemente la población mundial en algun momento
 del siglo XXII se estabilizará.
@@ -59,5 +59,6 @@ pandemias, catástrofes naturales, pero espero, por el bien de mi hija y mis nie
 nos depare una vida en paz, sana y duradera.
 
 Fuente de los datos:
-[1] https://ourworldindata.org/grapher/population-unwpp?country=~OWID_WRL
-[2] https://population.un.org/wpp/graphs?loc=900&type=Demographic%20Profiles&category=Line%20Charts
+
+1. https://ourworldindata.org/grapher/population-unwpp?country=~OWID_WRL
+2. https://population.un.org/wpp/graphs?loc=900&type=Demographic%20Profiles&category=Line%20Charts
