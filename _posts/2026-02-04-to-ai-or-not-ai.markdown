@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  To AI or not AI
-date:   2026-02-01 22:00:00
+date:   2026-02-04 22:00:00
 categories: programming ai technology future
 ---
 
@@ -34,7 +34,8 @@ La IA es una gran herramienta, pero también es una gran amenaza. Puede hacer mi
 Para mi, sentarme delante del ordenador, ejecutar el agente IA de turno y empezar a darle instrucciones es algo que repugna profundamente.
 El peligro de perder el control totalmente sobre el proceso creativo es algo que me aterra. La diferencia entre usar una herramienta y que esa
 herramienta te controle a ti es muy fina. Y es que la tentación de dejar que la IA haga todo el trabajo es grande, ahí reside el riesgo de perder 
-la esencia de lo que significa ser un programador.
+la esencia de lo que significa ser un programador, IMO. Yo me dedico a esto porque me gusta programar, si ya no puedo programar,
+todo deja de tener sentido para mi.
 
 Desde mi punto de vista, el programador tiene que entender el proceso de arriba a abajo, tiene que ser capaz de entender el problema, escribir el código para
 resolverlo, probarlo, depurarlo, optimizarlo, si surge un error, entenderlo, arreglarlo, etc... Si dejas que la IA haga todo eso por ti, ¿qué te queda a ti como programador?
