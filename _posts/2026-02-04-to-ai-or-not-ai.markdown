@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  To AI or not AI
+title:  To AI or not to AI
 date:   2026-02-04 22:00:00
 categories: programming ai technology future
 ---
