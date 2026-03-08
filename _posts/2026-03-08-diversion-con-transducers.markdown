@@ -44,7 +44,7 @@ Este código solo genera una lista nueva con el resultado de aplicar el pipeline
 
 En Java tenemos los streams que hacen algo similar, al crear un stream, podemos crear un pipeline
 combinando operaciones con `map`, `flatMap`, `filter`... pero hasta que no se llama lo que es
-una operación final (ej. collect, distinct, count, etc..) no se ejecuta nada. La idea de esto es 
+una operación final (ej. `collect`, `distinct`, `count`, etc..) no se ejecuta nada. La idea de esto es 
 reducir el número de objetos intermedios, igual que los transducers.
 
 Y como no, me he puesto a implementar estos transducers en Java y aplicarlos a mi librería purefun,
@@ -54,6 +54,7 @@ Primero de todo tenemos que definir lo que es un `Reducer`. Esto es simplemente 
 un acumulador y un elemento y devuelve un nuevo acumulador. Tan sencillo como esto:
   
 ```java
+@FunctionalInterface
 public interface Reducer<A, E> {
 
   A apply(A accumulator, E element);
@@ -65,6 +66,7 @@ Por otra parte necesitaremos el `Transducer` propiamente dicho, que es otra func
 un `Reducer` y devuelve otro `Reducer`.
 
 ```java
+@FunctionalInterface
 public interface Transducer<A, I, O> {
 
   Reducer<A, I> apply(Reducer<A, O> reducer);
@@ -95,7 +97,7 @@ Y ahora ya podemos definir `map` y `filter`:
   }
 ```
 
-Ahora necesitamos es una función para aplicar todo esto y generar un resultado. La función recibe
+Ahora necesitamos una función para aplicar todo esto y generar un resultado. La función recibe
 el valor inicial del acmulador, el pipeline en sí, un reducer para añadir elementos al acumulador y
 finalmente la lista original con la entrada.
 
@@ -145,7 +147,7 @@ Y queda algo así:
   println(result);
 ```
 
-Si lo comparamos con los streams de java vemos que queda algo muy parecido.
+Si lo comparamos con los streams de Java vemos que queda algo muy parecido.
 
 ```java
   toList(chain(map(x -> x + 2), filter(x -> x % 2 == 0)), list);
@@ -165,4 +167,4 @@ se pueden implementar todos los métodos que existen en los streams (map, flatMa
 y también se pueden implementar window functions que no se han incluido en Java hasta la llegada de
 los gathers, con los transducers son triviales de implementar.
 
-Si tenéis curiosidad, aquí tenéis el enlace a mi librería [purefun](https://github.com/tonivade/purefun)
+Si tenéis curiosidad, aquí está el enlace a mi librería [purefun](https://github.com/tonivade/purefun).
