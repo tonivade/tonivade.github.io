@@ -14,8 +14,17 @@ user => (filter even? (map #(+ % 2) [1 2 3 4 5 6 7 8 9]))
 (4 6 8 10)
 ```
 
+También se puede escribir de esta otra manera, tal vez sea así más facil de ver:
+
+```clojure
+user => (->> [1 2 3 4 5 6 7 8 9]
+  (map #(+ % 2))
+  (filter even?))
+(4 6 8 10)
+```
+
 Esto es un ejemplo trivial, pero sirve para ilustrar lo que quiero decir. Tenemos una lista, luego 
-después de `map` se crea otra lista, y al ejecutar `filter` otra lista más. Es decir, se generan listas
+después de `map` se crea otra, y al ejecutar `filter` otra lista más. Es decir, se generan listas
 intermedias con cada operación.
 
 Esto cuando el número de elementos de la lista es pequeño pues no es relevante, pero según el número
