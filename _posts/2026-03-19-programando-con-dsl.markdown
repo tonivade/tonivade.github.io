@@ -174,7 +174,7 @@ Esta claro que esto es mucho más dificil de entender así a primera vista, pero
 fácilmente definiendo una función `andThen`:
 
 ```java
-Console andThen(Function<String, Console> next) {
+default Console andThen(Function<String, Console> next) {
   return new AndThen(this, next);  
 }
 ```
