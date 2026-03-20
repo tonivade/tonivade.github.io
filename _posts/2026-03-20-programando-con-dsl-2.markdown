@@ -52,7 +52,7 @@ sealed interface Game {
 ```
 
 Esto no está completo, necesitamos ir rellenando huecos. La función next define `?` porque sabemos qué tipo de dato va llegar. Además, las diferentes operaciones devuelve
-tipos diferentes, `ReadLine` devolverá un `String`, y NextInt un `Integer`. Necesitamos
+tipos diferentes, `ReadLine` devolverá un `String`, y `NextInt` un `Integer`. Necesitamos
 parametrizar nuestro DSL.
 
 ```java
@@ -174,14 +174,12 @@ static Game<Void> play() {
 Ya tenemos nuestro programa definido, ahora necesitamos implementar la función para 
 evaluar el programa, pero iremos paso a paso para no perdernos.
 
-Primero qué tendrá que devolver el método `eval`, pues el resultado de evaluar la 
+Primero: ¿qué tendrá que devolver el método `eval`? Pues el resultado de evaluar la 
 operación que en nuestro caso será `T`.
 
 ```java
-sealed interface Game<T> {
-  default T eval() {    
-    // ???
-  }
+default T eval() {    
+  // ???
 }
 ```
 
@@ -189,29 +187,25 @@ Ahora podemos aplicar pattern matching y empezar a evaluar operaciones. Primero 
 lectura/escritura en consola, lo mismo que teníamos antes:
 
 ```java
-sealed interface Game<T> {
-  default T eval() {
-    return switch (this) {
-      case WriteLine(var line) -> {
-        IO.println(line);
-        yield null;
-      }
-      case ReadLine _ -> IO.readln();
-    };
-  }
+default T eval() {
+  return switch (this) {
+    case WriteLine(var line) -> {
+      IO.println(line);
+      yield null;
+    }
+    case ReadLine _ -> IO.readln();
+  };
 }
 ```
 
 Ahora la operación para generar un número aleatorio:
 
 ```java
-sealed interface Game<T> {
-  default T eval() {
-    return switch (this) {
-      // ...
-      case NextInt(var bound) -> ThreadLocalRandom.current().nextInt(bound);    
-    };
-  }
+default T eval() {
+  return switch (this) {
+    // ...
+    case NextInt(var bound) -> ThreadLocalRandom.current().nextInt(bound);    
+  };
 }
 ```
 
@@ -220,17 +214,15 @@ un valor. Necesitaremos algún sitio donde poder guardar esa información. Lo m�
 simplemente pasar un parámetro al método `eval` donde poder guardar ese contexto.
 
 ```java
-sealed interface Game<T> {
-  default T eval(Context context) {
-    return switch (this) {
-      // ...
-      case SetValue(var value) -> {
-        context.set(value);
-        yield null;
-      }
-      case GetValue _ -> context.get();    
-    };
-  }
+default T eval(Context context) {
+  return switch (this) {
+    // ...
+    case SetValue(var value) -> {
+      context.set(value);
+      yield null;
+    }
+    case GetValue _ -> context.get();    
+  };
 }
 ```
 
@@ -238,17 +230,15 @@ Y por último necesitamos evaluar las dos operaciones `Done` y `AndThen` que son
 sirven para combinar el resto de operaciones.
 
 ```java
-sealed interface Game<T> {
-  default T eval(Context context) {
-    return switch (this) {
-      // ...
-      case Done<T>(var value) -> value;
-      case AndThen<?, T>(var current, var next) -> {
-        var value = current.eval(context);
-        yield next.apply(value).eval(context);      
-      }
-    };
-  }
+default T eval(Context context) {
+  return switch (this) {
+    // ...
+    case Done<T>(var value) -> value;
+    case AndThen<?, T>(var current, var next) -> {
+      var value = current.eval(context);
+      yield next.apply(value).eval(context);      
+    }
+  };
 }
 ```
 
@@ -259,54 +249,33 @@ El problema está con `AndThen` y es porque desconocemos el tipo de entrada, por
 una `?` en su lugar y no tenemos manera de hacer esto limpiamente sin castings:
 
 ```java
-sealed interface Game<T> {
-  default T eval(Context context) {
-    return switch (this) {
-      // ...
-      case Done<T>(var value) -> value;
-      case AndThen<?, T>(var current, var next) -> {
-        var value = (Object) current.eval(context);
-        var nextValue = ((Function<Object, Game<T>>) next).apply(value);
-        yield nextValue.eval(context);
-      }
-    };
-  }
+default T eval(Context context) {
+  return switch (this) {
+    // ...
+    case Done<T>(var value) -> value;
+    case AndThen<?, T>(var current, var next) -> {
+      var value = (Object) current.eval(context);
+      var nextValue = ((Function<Object, Game<T>>) next).apply(value);
+      yield nextValue.eval(context);
+    }
+  };
 }
 ```
 
 Podemos dejarlo más limpio si creamos un método privado en `AndThen` ya que ahí si que conocemos
-los tipos y no es necesario realizar ningún casting. Pero eso lo dejo como ejercicio para el
-lector.
+los tipos y no es necesario realizar ningún tipo de casting. Pero eso lo dejo como ejercicio para 
+el lector 😄.
 
-Ahora bien, ¿qué pinta tendría la clase Context? Pues algo como esto podría valernos por ahora:
-
-```java
-final class Context {
-
-  private int value;
-
-  void set(int value) { 
-    this.value = value; 
-  }
-
-  int get() { 
-    return value; 
-  }
-}
-```
-
-Solo comentar que esta clase es mutable, lo que en cierto modo va en contra de los principios de
-la programación funcional, pero en este caso, las operaciones que modifican esta clase están 
-definidas en nuestro DSL por lo que el estado solo cambiará dentro del flujo del programa.
-
-Y por último nos queda un pequeño cambio para dejar al compilador de Java conforme ya que el método
-`eval` insiste en que los tipos no son compatibles y hay que hacer un cast. Todavía no entiendo por qué se queja el compilador ya que si estamos en un `Game<T>` el resultado de `eval` tendrá que ser `T` y no importa lo que hagamos ahí dentro que seguro que devolverá un `T`.
+Y por último, nos queda un pequeño cambio para dejar al compilador de Java conforme, ya que insiste 
+que en el método `eval` los tipos no son compatibles y hay que hacer un cast. Todavía no entiendo 
+por qué se queja el compilador ya que si estamos en un `Game<T>` el resultado de `eval` tendrá 
+que ser `T` y no importa lo que hagamos ahí dentro que seguro que devolverá un `T`.
 
 Pongo aquí el código completo del método `eval`.
 
 ```java
 default T eval(Context context) {
-  return (T) switch (this) { // here we have to cast to T
+  return (T) switch (this) { // here we have to cast to T, it's safe
     case WriteLine(var line) -> {
       IO.println(line);
       yield null;
@@ -327,3 +296,25 @@ default T eval(Context context) {
   };
 }
 ```
+
+Ahora bien, ¿qué pinta tendría la clase Context? Pues algo como esto podría valernos por ahora:
+
+```java
+final class Context {
+
+  private int value;
+
+  void set(int value) {
+    this.value = value; 
+  }
+
+  int get() {
+    return value; 
+  }
+}
+```
+
+Solo comentar que esta clase es mutable, lo que en cierto modo va en contra de los principios de
+la programación funcional. Pero en este caso, las operaciones que modifican esta clase están 
+definidas en nuestro DSL por lo que el estado solo cambiará dentro del flujo del programa. Por
+lo que podemos decir que nadie salvo nosotros modificará el contexto.
