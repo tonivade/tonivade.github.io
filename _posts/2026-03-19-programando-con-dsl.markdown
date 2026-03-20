@@ -104,7 +104,7 @@ Cada operación tiene una referencia a la siguiente operación. En el caso de `R
 Ahora nuestro programa ahora tendría este aspecto:
 
 ```java
-void main() {
+static void main() {
   var program = 
     new WriteLine("What's your name?", 
       new ReadLine(
@@ -160,7 +160,7 @@ Como he dicho, en lugar de tener una referencia en cada operación a la siguient
 operación específica para combinar dos operaciones. Ahora nuestro programa tendría este aspecto:
 
 ```java
-void main() {
+static void main() {
   var program = 
     new AndThen(
       new AndThen(
@@ -182,7 +182,7 @@ default Console andThen(Function<String, Console> next) {
 Ahora nos queda algo así, creo que es mucho más fácil de entender de esta manera:
 
 ```java
-void main() {
+static void main() {
   var program = 
     new WriteLine("What's your name?")
       .andThen(_ -> new ReadLine())
@@ -213,3 +213,38 @@ depender del anterior.
 Ahora bien, todavía esto es algo muy **ad hoc** para nuestro pequeño programa, pero en el 
 siguiente artículo seguiremos profundizando en el tema sacando factor común y poder combinar 
 diferentes DSLs en un mismo programa.
+
+Aquí dejo el código completo para mayor claridad:
+
+```java
+sealed interface Console {
+  record WriteLine(String line) implements Console {}
+  record ReadLine() implements Console {}
+  record AndThen(
+    Console current, Function<String, Console> next) implements Console {}
+  
+  default Console andThen(Function<String, Console> next) {
+    return new AndThen(this, next);  
+  }
+  
+  default String eval() {
+    return switch (this) {
+      case WriteLine(var line) -> {
+        IO.println(line);
+        yield null;
+      }
+      case ReadLine _ -> IO.readln();
+      case AndThen(var current, var next) -> next.apply(current.eval()).eval();
+    };
+  }
+      
+  static void main() {
+    var program = 
+      new WriteLine("What's your name?")
+        .andThen(_ -> new ReadLine())
+        .andThen(name -> new WriteLine("Hello " + name + "!"));
+    
+    program.eval();
+  }
+}
+```
