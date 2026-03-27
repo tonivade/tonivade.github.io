@@ -537,7 +537,7 @@ sealed interface Program<S, T> {
 
   record Done<S, T>(T value) implements Program<S, T> {}
 
-  record Flatmap<S, X, T>(Program<S, X> current, Function<X, Program<S, T>> next) implements Program<S, T> {}
+  record FlatMap<S, X, T>(Program<S, X> current, Function<X, Program<S, T>> next) implements Program<S, T> {}
 
   record Access<S, T>(Function<S, T> mapper) implements Program<S, T> {}
 
@@ -546,7 +546,7 @@ sealed interface Program<S, T> {
   }
 
   default <R> Program<S, R> flatMap(Function<T, Program<S, R>> next) {
-    return new Flatmap<>(this, next);
+    return new FlatMap<>(this, next);
   }
 
   static <S, T, R> Function<T, Program<S, R>> lift(Function<T, R> mapper) {
@@ -575,7 +575,7 @@ sealed interface Program<S, T> {
   default T eval(S state) {
     return switch (this) {
       case Done<S, T>(T value) -> value;
-      case Flatmap<S, ?, T>(var current, var next) -> {
+      case FlatMap<S, ?, T>(var current, var next) -> {
         var value = (Object) current.eval(state);
         var nextValue = ((Function<Object, Program<S, T>>) next).apply(value);
         yield nextValue.eval(state);
