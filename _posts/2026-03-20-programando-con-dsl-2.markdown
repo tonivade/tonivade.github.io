@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  Programando con DSLs en Java 25 (II)
-date:   2026-03-19 21:00:00
+date:   2026-03-20 21:00:00
 categories: programming java functional-programming dsl monad
 ---
 
