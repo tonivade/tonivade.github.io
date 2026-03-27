@@ -251,14 +251,14 @@ Una vez hecho todo esto, el código queda de esta forma:
 
 ```java
 static void main() {
-  Program<Context, Void> program =
-      Console.<Context>prompt("Do you want to play a game? (y/n)")
-        .andThen(answer -> {
-          if (answer.equalsIgnoreCase("y")) {
-            return Random.<Context>nextInt(10).andThen(State.SetValue::new).andThen(_ -> play());
-          }
-          return Console.println("Bye!");
-        });
+  var program =
+    Console.<Context>prompt("Do you want to play a game? (y/n)")
+      .andThen(answer -> {
+        if (answer.equalsIgnoreCase("y")) {
+          return Random.<Context>nextInt(10).andThen(State.SetValue::new).andThen(_ -> play());
+        }
+        return Console.println("Bye!");
+      });
 
     program.eval(new Context());
 }
@@ -404,16 +404,16 @@ sealed interface State<T> extends Program.Dsl<Context, T> {
 class Game {
 
   static void main() {
-    Program<Context, Void> program =
-        Console.<Context>prompt("Do you want to play a game? (y/n)")
-          .andThen(answer -> {
-            if (answer.equalsIgnoreCase("y")) {
-              return Random.<Context>nextInt(10).andThen(State.SetValue::new).andThen(_ -> play());
-            }
-            return Console.println("Bye!");
-          });
+    var program =
+      Console.<Context>prompt("Do you want to play a game? (y/n)")
+        .andThen(answer -> {
+          if (answer.equalsIgnoreCase("y")) {
+            return Random.<Context>nextInt(10).andThen(State.SetValue::new).andThen(_ -> play());
+          }
+          return Console.println("Bye!");
+        });
 
-      program.eval(new Context());
+    program.eval(new Context());
   }
 
   static Program<Context, Void> play() {
