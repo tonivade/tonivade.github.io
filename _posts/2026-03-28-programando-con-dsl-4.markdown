@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  Programando con DSLs en Java 25 (IV)
-date:   2026-03-28 15:00:00
+date:   2026-03-28 14:00:00
 categories: programming java functional-programming dsl monad
 ---
 
@@ -677,7 +677,7 @@ class Game {
         });
   }
 
-  static <S extends Console.Service & Random.Service & State.Service> Program<S, Void> play() {
+  static <S extends Console.Service & State.Service> Program<S, Void> play() {
     return pipe(
         prompt("Enter a number between 0 to 9"),
         lift(Integer::parseInt),
@@ -697,7 +697,7 @@ class Game {
         _ -> play());
   }
 
-  static <S extends Console.Service & Random.Service & State.Service> Program<S, Boolean> checkNumber(Integer number) {
+  static <S extends State.Service> Program<S, Boolean> checkNumber(Integer number) {
     return pipe(getValue(), lift(value -> value == number));
   }
 }
