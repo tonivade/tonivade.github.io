@@ -15,7 +15,7 @@ Y siguiendo por esa senda hemos descubierto de manera natural que lo que obtenem
 una estructura parecida a una free monad, que viene del mundo de la programación funcional
 y de la categoría de teorías.
 
-No me interesa ese lado más académico (si alguien tiene interés puede profundizar más), lo
+No me interesa ese lado más académico (si alguien tiene interés puede [profundizar](https://abuseofnotation.github.io/category-theory-illustrated/00_about/) más), lo
 que me interesa es el lado más pragmático, y es que es algo que me permite definir lenguajes,
 combinarlos y hacer programas complejos que utilicen esos lenguajes.
 
