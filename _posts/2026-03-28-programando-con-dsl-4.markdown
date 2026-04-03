@@ -736,3 +736,74 @@ public class Context implements Console.Service, State.Service, Random.Service {
   }
 }
 ```
+
+```java
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static Game.game;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+class GameTest {
+
+  @Test
+  void happyPath() {
+    var context = new MockContext("y", "1", "2");
+
+    game().eval(context);
+
+    var expectedOutput = List.of(
+        "Do you want to play a game? (y/n)",
+        "Enter a number between 0 to 9",
+        "Enter a number between 0 to 9", "YOU WIN!");
+    assertEquals(expectedOutput, context.output);
+  }
+
+  @Test
+  void userEnterAnInvalidValue() {
+    var context = new MockContext("y", "c");
+
+    assertThrows(NumberFormatException.class, () -> game().eval(context));
+  }
+
+  class MockContext implements Console.Service, Random.Service, State.Service {
+
+    private final List<String> output = new ArrayList<>();
+    private final List<String> input = new ArrayList<>();
+
+    private int value;
+
+    public MockContext(String... input) {
+      this.input.addAll(List.of(input));
+    }
+
+    @Override
+    public void setValue(int value) {
+      this.value = value;
+    }
+
+    @Override
+    public int getValue() {
+      return value;
+    }
+
+    @Override
+    public int nextInt(int bound) {
+      return 2;
+    }
+
+    @Override
+    public void println(String line) {
+      output.add(line);
+    }
+
+    @Override
+    public String readln() {
+      return input.removeFirst();
+    }
+  }
+}
+```
