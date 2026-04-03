@@ -7,7 +7,7 @@ permalink: /projects/
 Here it is a list of my sike projects I was working on lately. I will keep updating this list as I keep working on new projects:
 
 * RespServer [GitHub](https://github.com/tonivade/resp-server) A RESP server implementation in Java.
-* ClauDB [GitHub](https://github.com/tonivade/claudb) A redis implemantation in Java that uses RespServer as the protocol server and [h2-mvstore](https://www.h2database.com/html/mvstore.html) as the storage engine. Useful for integration tests.
+* ClauDB [GitHub](https://github.com/tonivade/claudb) A redis implementation in Java that uses [RespServer](https://github.com/tonivade/resp-server) as the protocol server and [h2-mvstore](https://www.h2database.com/html/mvstore.html) as the storage engine. Useful for integration tests.
 * Purefun [GitHub](https://github.com/tonivade/purefun) A functional programming library for Java. Not intended to be used in production, but rather as a playground for functional programming concepts in Java.
 * ZeroMock [GitHub](https://github.com/tonivade/zeromock) A mocking library for Java designed to be simple and easy to use.
 * pq [GitHub](https://github.com/tonivade/pq) A parquet command line tool for Java. It allows you to read and write parquet files from the command line.

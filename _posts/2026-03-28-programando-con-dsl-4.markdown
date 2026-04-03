@@ -170,7 +170,7 @@ interface State {
 }
 ```
 
-Con esta nueva forma de implementar las operaciones el compilar nos da menos
+Con esta nueva forma de implementar las operaciones el compilador nos da menos
 problemas, todo queda mucho más limpio y más sencillo de seguir.
 
 Por último necesitaremos implementar nuestro nuevo contexto, que debe implementar 
