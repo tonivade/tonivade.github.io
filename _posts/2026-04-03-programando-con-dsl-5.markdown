@@ -387,9 +387,9 @@ existen en un contexto, y finalmente capturar y gestionar errores. Hemos termina
 implementando un mini lenguaje que nos permite hacer todas esas cosas.
 
 Y eso es exactamente lo que he implementado en mi libraría [diesel](https://github.com/tonivade/diesel).
-Además de implementar todas esto que he explicado en estos artículos, hay un
+Además de implementar todo esto que he explicado en estos artículos y más, hay un
 procesador de anotaciones que automáticamente nos genera las diferentes operaciones
-definidas en un interfaz en operaciones que podemos combinar en un DSL. 
+definidas en un interfaz, en operaciones que podemos combinar en un DSL. 
 
 Por ejemplo, imaginemos que tenemos este interfaz:
 
