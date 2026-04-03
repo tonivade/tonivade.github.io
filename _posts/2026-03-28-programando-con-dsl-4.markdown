@@ -9,14 +9,14 @@ En estos tres últimos artículos hemos visto como utilizando las novedades más
 de Java, como son los sealed interfaces, records, pattern matching and switch expressions
 podemos implementar en Java Domain Specific Languages de tal manera que podemos describir
 un lenguaje, sus operaciones y combinarlas para hacer programas que luego interpretamos.
-Se podría decir que tenemos un lenguaje de programación dentro de Java.
+Se podría decir que tenemos un mini lenguaje de programación dentro de Java.
 
 Y siguiendo por esa senda hemos descubierto de manera natural que lo que obtenemos es
 una estructura parecida a una free monad, que viene del mundo de la programación funcional
 y de la categoría de teorías.
 
 No me interesa ese lado más académico (si alguien tiene interés puede [profundizar](https://abuseofnotation.github.io/category-theory-illustrated/00_about/) más), lo
-que me interesa es el lado más pragmático, y es que es algo que me permite definir lenguajes,
+que me interesa es el lado más pragmático, y es que es algo que me permite definir mini lenguajes,
 combinarlos y hacer programas complejos que utilicen esos lenguajes.
 
 En el último artículos hemos visto todo lo que podíamos sacar factor común e implementar
@@ -62,7 +62,7 @@ sealed interface Program<S, T> {
 
 Para crear más operaciones necesitamos crear un punto de extensión que llamamos `Dsl`.
 Luego por cada operación debíamos crear otra clase que extendiera `Dsl` e implementar
-el método `handle` de esa nueva operación. Es mucho código repetitivo, no podríamos
+el método `handle` de esa nueva operación. Es mucho código repetitivo, ¿no podríamos
 simplificarlo de alguna manera?
 
 La respuesta a esta pregunta es sí, se puede hacer. Como `State` necesitaba almacenar
@@ -99,11 +99,11 @@ default T eval(S state) {
 }
 ```
 
-¿Qué conseguimos con esto? Pues ya no necesitamos `Dsl` y crear extensiones de
-este `Dsl` para definir nuevas operaciones ahora sería simplemente llamadas
-a métodos que implementara nuestro contexto.
+¿Qué conseguimos con esto? Pues ya no necesitamos `Dsl`, ni crear extensiones de
+`Dsl` para definir nuevas operaciones. Ahora sería simplemente llamadas a métodos 
+que luego se implementaran nuestro contexto.
 
-Ahora cómo quedaría la cosa? Veamos como quedaría `Console`:
+*Ahora cómo quedaría la cosa? Veamos como quedaría `Console`:
 
 ```java
 interface Console {
@@ -127,8 +127,10 @@ interface Console {
 ```
 
 Tenemos que definir un interfaz adicional que definiría todas las operaciones
-que podríamos hacer, en este caso `Service`, y una serie de métodos de ayuda
-que accedieran a los métodos de `Service` a través de `Program.Access`.
+que podríamos hacer, en este caso `Console.Service`, y una serie de métodos de ayuda
+que accedieran a los métodos de `Service` a través de `Program.Access`. Para que esto 
+funcione `S` tiene que implementar el interfaz `Console.Service`, y para eso
+necesitamos decir que `S extends Console.Service`.
 
 Ahora `Random`:
 
@@ -168,10 +170,11 @@ interface State {
 }
 ```
 
-Con esta nueva forma de afrontar el problema el compilar nos da menos
+Con esta nueva forma de implementar las operaciones el compilar nos da menos
 problemas, todo queda mucho más limpio y más sencillo de seguir.
 
-Por último necesitaremos implementar nuestro nuevo contexto:
+Por último necesitaremos implementar nuestro nuevo contexto, que debe implementar 
+los interfaces `Console.Service`, `Random.Service` y `State.Service`:
 
 ```java
 public class Context implements Console.Service, State.Service, Random.Service {
@@ -249,30 +252,20 @@ Random.nextInt(10).andThen(State::setValue)
 ```
 
 La primera operación, `Random.nextInt` necesita un contexto de tipo `Random.Service` y
-la segunda operación, `State.setValue` necesita un contexto de tipo `State.Service`. El
+la segunda operación `State.setValue` necesita un contexto de tipo `State.Service`. El
 compilador se queja, y con razón ya que ambos tipos no son compatibles entre sí. Asi que
 por eso debemos ayudarle indicando que el contexto va a ser `Context` que implementa
-ambos tipos como `Random.Service` y `State.Service`.
+ambos tipos: `Random.Service` y `State.Service`.
 
 ```java
 Random.<Context>nextInt(10).andThen(State::setValue)
 ```
 
-Para resolver podemos definir unas funciones de ayuda, que voy a llamar `pipe`:
+Para resolver esto podemos definir unas funciones de ayuda, que voy a llamar `pipe`:
 
 ```java
 static <S, T, R> Program<S, R> pipe(Program<S, T> first, Function<T, Program<S, R>> next) {
   return first.andThen(next);
-}
-
-static <S, T, U, R> Program<S, R> pipe(
-    Program<S, T> first, Function<T, Program<S, U>> second, Function<U, Program<S, R>> next) {
-  return pipe(first, t -> pipe(second.apply(t), next));
-}
-
-static <S, T, U, V, R> Program<S, R> pipe(
-    Program<S, T> first, Function<T, Program<S, U>> second, Function<U, Program<S, V>> third, Function<V, Program<S, R>> next) {
-  return pipe(first, t -> pipe(second.apply(t), u -> pipe(third.apply(u), next)));
 }
 ```
 
@@ -310,8 +303,8 @@ class Game {
 }
 ```
 
-Ahora ya no es necesario meter esos hints al compilador, este ya es capaz de inferir los tipos
-correctamente, aunque nos han quedado algunas cosas un poco feas como esto:
+Ahora ya no es necesario meter esos hints para el compilador, este ya es capaz de inferir los tipos
+correctamente, aunque nos han quedado algunas cosas un poco feas como esta:
 
 ```java
 s -> new Program.Done<>(Integer.parseInt(s))
@@ -325,8 +318,8 @@ static <S, T, R> Function<T, Program<S, R>> lift(Function<T, R> mapper) {
 }
 ```
 
-Este método simplemente una función que devolvía un tipo X, en su lugar devuelva un `Program<S, X>`.
-Este sería el resultado:
+Este método simplemente recibe una función que devolvía un tipo X, en su lugar devuelve otra función
+que devuelve `Program<S, X>`.  Este sería el resultado:
 
 ```java
 static Program<Context, Void> play() {
@@ -364,8 +357,7 @@ class Game {
 
   static Program<Context, Void> play() {
     return pipe(
-        prompt("Enter a number between 0 to 9"),
-        lift(Integer::parseInt),
+        readNumber(),
         Game::checkNumber,
         result -> {
           if (result) {
@@ -375,14 +367,21 @@ class Game {
         });
   }
 
-  private static Program<Context, Void> generateNumberAndPlay() {
+  static Program<Context, Void> generateNumberAndPlay() {
     return pipe(
         nextInt(10),
         State::setValue,
         _ -> play());
   }
 
-  private static Program<Context, Boolean> checkNumber(Integer number) {
+  static Program<Context, Integer> readNumber() {
+    return pipe(
+        prompt("Enter a number between 0 to 9"),
+        lift(Integer::parseInt)
+      );
+  }
+
+  static Program<Context, Boolean> checkNumber(Integer number) {
     return pipe(getValue(), lift(value -> value == number));
   }
 }
@@ -437,6 +436,13 @@ class Game {
         _ -> play());
   }
 
+  static <S extends Console.Service> Program<S, Integer> readNumber() {
+    return pipe(
+        prompt("Enter a number between 0 to 9"),
+        lift(Integer::parseInt)
+      );
+  }
+
   static <S extends Console.Service & Random.Service & State.Service> Program<S, Boolean> checkNumber(Integer number) {
     return pipe(getValue(), lift(value -> value == number));
   }
@@ -474,7 +480,7 @@ class MockContext implements Console.Service, Random.Service, State.Service {
 
   @Override
   public void println(String line) {
-    output.add(line);
+    output.addLast(line);
   }
 
   @Override
@@ -488,7 +494,7 @@ Este interprete mockeado debe implementar los tres servicios, igual que la clase
 Para mockear la salida y entrada estándar simplemente usamos un par de `ArrayList`.
 Cuando se lee de la entradas estándar borramos el primer elemento de la lista `input`, y cada
 vez que se escribe en la salida estándar añadimos un elemento a la lista `output`. El método
-`nextInt` hacemos que devuelva un concreto, por ejemplo 2.
+`nextInt` hacemos que devuelva un valor concreto, por ejemplo 2.
 
 Ahora podemos escribir un test como este utilizando este mock:
 
@@ -523,6 +529,7 @@ pero no es estrictamente necesario.
 En el anterior articulo dije que este iba a ser mi último artículo de la serie, pero creo
 que me da para hacer otro más sobre el manejo de errores. Supongamos que en este mismo
 ejemplo el usuario en lugar de introducir un número, introduce una letra, ¿qué pasaría?
+
 Evidentemente `Integer.parseInt` lanzaría una `NumberFormatException`. Con la implementación
 actual de `Program` no podemos hacer nada, pero si que adaptándola un poco sí que podríamos
 manejarlo. Lo veremos en el siguiente artículo.
@@ -695,6 +702,13 @@ class Game {
         nextInt(10),
         State::setValue,
         _ -> play());
+  }
+
+  static <S extends Console.Service> Program<S, Integer> readNumber() {
+    return pipe(
+        prompt("Enter a number between 0 to 9"),
+        lift(Integer::parseInt)
+      );
   }
 
   static <S extends State.Service> Program<S, Boolean> checkNumber(Integer number) {

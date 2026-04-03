@@ -98,26 +98,19 @@ que introduzca un valor correcto. Pero ¿no podríamos generalizar la gestión d
 y que esta esté integrada en nuestro propio mini lenguaje?
 
 En lenguajes como Java tenemos las excepciones para gestionar errores. Las excepciones
-rompen el flujo normal de ejecución, por lo que TODO. 
+rompen el flujo normal de ejecución, por lo que siendo puristas se pueden considerar
+side effects, lo mismo que leer o escribir de la salida estándar. 
 
 Pero hay otras maneras de gestionar errores, podemos hacer que un método responda con
-una estructura de datos que cuando funciona devuelva un tipo de data, y cuando falla otro
-diferente. Esto se suele representar utilizando el tipo `Either`. En Java podemos modelarlo
-usando sealed interfaces, algo como esto:
+una estructura de datos que cuando funciona devuelva un tipo de dato, y cuando falla otro
+diferente. Esto se suele representar utilizando con el tipo `Either`. En Java podemos 
+implementarlo usando sealed interfaces, algo como esto:
 
 ```java
 sealed interface Either<L, R> {
 
   record Left<L, R>(L left) implements Either<L, R> {}
   record Right<L, R>(R right) implements Either<L, R> {}
-
-  static <L, R> Either<L, R> left(L left) {
-    return new Left<>(left);
-  }
-
-  static <L, R> Either<L, R> right(R right) {
-    return new Right<>(right);
-  }
 }
 ```
 
@@ -147,7 +140,7 @@ default Either<E, T> eval(S state) {
 }
 ```
 
-Ahora eval devuelve `Either<E, T>`, ¿pero `E` de donde sale? Necesitamos añadir en
+Ahora `eval` devuelve `Either<E, T>`, ¿pero `E` de donde sale? Necesitamos añadir en
 `Program` otro parámetro para definir el tipo de error que puede devolver el programa.
 Y por lo tanto, ese `E` se debe propagar a todas las implementaciones de `Program`.
 
@@ -162,8 +155,8 @@ sealed interface Program<S, E, T> {
 }
 ```
 
-Entonces ahora, cuando falla un programa que devuelve? `Done` no nos sirve ya que se
-corresponde a cuando todo va bien. Por lo que necesitaremos otra implementación de
+Entonces ahora, cuando falla un programa ¿qué devuelve? `Done` no nos sirve ya que se
+corresponde al caso cuando todo va bien. Por lo que necesitaremos otra implementación de
 `Program` para los casos cuando falla.
 
 ```java
@@ -179,9 +172,9 @@ sealed interface Program<S, E, T> {
 }
 ```
 
-`Done` la hemos renombrado `Success` y hemos definido el nuevo tipo como `Failure`.
+`Done` la hemos renombrado como `Success` y hemos definido el nuevo tipo como `Failure`.
 
-Ahora bien, como queda el método `eval`:
+Ahora bien, cómo queda el método `eval`:
 
 ```java
 @SuppressWarnings("unchecked")
@@ -214,20 +207,8 @@ necesitaremos otro tipo de dato que reciba el error y devuelva un programa. Algo
 parecido a lo que ya hace `FlatMap`, pero para errores. Algo como esto:
 
 ```java
-sealed interface Program<S, E, T> {
-
-  record Success<S, E, T>(T value) implements Program<S, E, T> {}
-
-  record Failure<S, E, T>(E error) implements Program<S, E, T> {}
-
-  record FlatMap<S, E, X, T>(Program<S, E, X> current, Function<X, Program<S, E, T>> next) 
+record FlatMapError<S, X, E, T>(Program<S, X, T> current, Function<X, Program<S, E, T>> next) 
     implements Program<S, E, T> {}
-
-  record FlatMapError<S, X, E, T>(Program<S, X, T> current, Function<X, Program<S, E, T>> next) 
-    implements Program<S, E, T> {}
-
-  record Access<S, E, T>(Function<S, T> mapper) implements Program<S, E, T> {}
-}
 ```
 
 Ahora necesitamos adaptar el método `eval` para gestionar el nuevo tipo `FlatMapError`:
@@ -261,11 +242,10 @@ default Either<E, T> eval(S state) {
 }
 ```
 
-Aquí vemos muchas cosas nuevas, las implementaciones de FlatMap y FlatMapError llaman
-a eval por lo que el resultado de llamar a `current.eval()` es un tipo `Either`. En
-el código de eval se llama al método `fold` de `Either`, que permite transformar `Either`.
-Recibe dos funcionas, una para el gestionar el caso left y otra para gestionar el
-caso right.
+Aquí vemos muchas cosas nuevas, las implementaciones de `FlatMap` y `FlatMapError` llaman
+a `eval` por lo que el resultado de llamar a `current.eval()` es un tipo `Either`. Luego se llama 
+al método `fold` de `Either`, que permite transformar `Either`. `fold` recibe dos funcionas, 
+una para el gestionar el caso left y otra para gestionar el caso right.
 
 ```java
 default <T> T fold(Function<L, T> leftCase, Function<R, T> rightCase) {
@@ -293,13 +273,13 @@ static <S extends Console.Service> Program<S, NumberFormatException, Integer> re
   return pipe(
     prompt("Enter a number between 0 to 9"),
     Game::parseInt
-  ).flatMapError(e -> pipe(println("Invalid value"), _ -> readNumber()));
+  ).flatMapError(_ -> pipe(println("Invalid value"), _ -> readNumber()));
 }
 ```
 
 Aquí volvemos a tener el mismo problema que con `flatMap`, ya que el compilador no es capaz
 de inferir correctamente los tipos. Para resolverlo podemos hacer algo parecido a lo que 
-hicimos con el método `pipe`.
+hicimos con el método `pipe` en el artículo anterior:
 
 ```java
 static <S, E, F, T> Program<S, F, T> recover(
@@ -326,7 +306,7 @@ static <S extends Console.Service> Program<S, Exception, Integer> readNumber() {
 
 Ya por fin el compilador es capaz de inferir los tipos correctamente.
 
-Si ejecutamos el programa esto es lo que veríamos:
+Ahora si ejecutamos el programa esto es lo que veríamos:
 
 ```
 Do you want to play a game? (Y/y)
@@ -342,7 +322,7 @@ YOU WIN!!
 ```
 
 Como vemos, ahora somos capaces de capturar y gestionar los errores dentro de nuestros
-programas.  Y para estar seguros vamos hacer un test unitario, similar a los que 
+programas. Y para estar seguros vamos hacer un test unitario, similar a los que 
 implementamos en el artículo anterior.
 
 ```java
@@ -363,7 +343,7 @@ void userEnterAnInvalidValue() {
 ```
 
 Una última cosa que podemos hacer es definir una función de ayuda para generalizar
-el caso el método `parseInt` que hemos hecho antes.
+el caso del método `parseInt` que hemos hecho antes.
 
 ```java
 static <S> Program<S, NumberFormatException, Integer> parseInt(String s) {
