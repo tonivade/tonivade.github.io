@@ -686,8 +686,7 @@ class Game {
 
   static <S extends Console.Service & State.Service> Program<S, Void> play() {
     return pipe(
-        prompt("Enter a number between 0 to 9"),
-        lift(Integer::parseInt),
+        readNumber(),
         Game::checkNumber,
         result -> {
           if (result) {
