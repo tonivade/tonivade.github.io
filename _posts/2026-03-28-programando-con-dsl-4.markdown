@@ -443,7 +443,7 @@ class Game {
       );
   }
 
-  static <S extends Console.Service & Random.Service & State.Service> Program<S, Boolean> checkNumber(Integer number) {
+  static <S extends State.Service> Program<S, Boolean> checkNumber(Integer number) {
     return pipe(getValue(), lift(value -> value == number));
   }
 }
