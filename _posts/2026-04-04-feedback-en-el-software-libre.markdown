@@ -38,6 +38,7 @@ muy útil para una tarea concreta, o que te gusta como se ha implementado una co
 ha hecho de esta manera podría hacerse de otra mejor. Cualquier cosa, siempre y cuando se haga con
 educación y con respeto, es de agradecer.
 
-Asi que por favor os pido, dad feedback a los proyectos que usáis, especialmente a los proyectos
-que mantiene una única persona. Para esa persona eso será como una especie de salario emocional
-que valorarán mucho y les motivará a seguir trabajando en su proyecto.
+Asi que por favor os pido, dad feedback a los proyectos que usáis (al menos darle una estrellita
+en github), especialmente a los proyectos que mantiene una única persona. Para esa persona eso 
+será como una especie de salario emocional que valorarán mucho y les motivará a seguir trabajando 
+en su proyecto.
