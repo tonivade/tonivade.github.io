@@ -89,7 +89,7 @@ Y luego interpretar esto sería tan sencillo como esto:
 default T eval(S state) {
   return switch (this) {
     case Done<S, T>(T value) -> value;
-    case FlatMap<S, ?, T>(var current, var next) -> {
+    case AndThen<S, ?, T>(var current, var next) -> {
       var value = (Object) current.eval(state);
       var nextValue = ((Function<Object, Program<S, T>>) next).apply(value);
       yield nextValue.eval(state);
