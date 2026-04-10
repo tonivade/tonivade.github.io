@@ -103,7 +103,7 @@ default T eval(S state) {
 `Dsl` para definir nuevas operaciones. Ahora sería simplemente llamadas a métodos 
 que luego se implementaran nuestro contexto.
 
-*Ahora cómo quedaría la cosa? Veamos como quedaría `Console`:
+¿Ahora cómo quedaría la cosa? Veamos como quedaría `Console`:
 
 ```java
 interface Console {
