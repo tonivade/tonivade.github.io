@@ -6,7 +6,7 @@ categories: programming java functional-programming dsl monad
 ---
 
 Durante estos 4 últimos artículos hemos ido paso a paso hasta implementar un pequeño
-framework para desarrollar mi lenguajes y combinarlos para desarrollar programas.
+framework para desarrollar mini lenguajes y combinarlos para desarrollar programas.
 
 Y hemos visto que, de manera natural, lo que obtenemos es una estructura parecida 
 a una free monad, que viene del mundo de la programación funcional.
@@ -244,7 +244,7 @@ default Either<E, T> eval(S state) {
 
 Aquí vemos muchas cosas nuevas, las implementaciones de `FlatMap` y `FlatMapError` llaman
 a `eval` por lo que el resultado de llamar a `current.eval()` es un tipo `Either`. Luego se llama 
-al método `fold` de `Either`, que permite transformar `Either`. `fold` recibe dos funcionas, 
+al método `fold` de `Either`, que permite transformar `Either`. `fold` recibe dos funciones, 
 una para el gestionar el caso left y otra para gestionar el caso right.
 
 ```java
@@ -746,7 +746,7 @@ sealed interface Either<L, R> {
 
 ```java
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static v3.Game.game;
+import static Game.game;
 
 import java.util.ArrayList;
 import java.util.List;
