@@ -30,9 +30,10 @@ intermedias con cada operación.
 Esto cuando el número de elementos de la lista es pequeño pues no es relevante, pero según el número
 de elementos aumenta, el rendimiento cae y cae.
 
-En clojure tienen una cosa que se llaman transducers, son una función de orden superior, que reciben
-otra función y generan otra función combinando las dos operaciones. En clojure tenemos la función
-`comp` que combina ambas operaciones, creando algo parecido a un pipeline:
+En clojure tienen una cosa que se llaman [transducers](https://clojure.org/reference/transducers), 
+son una función de orden superior, que reciben otra función y generan otra función combinando las dos 
+operaciones. En clojure tenemos la función `comp` que combina ambas operaciones, creando algo parecido 
+a un pipeline:
 
 ```clojure
 (comp (map #(+ % 2)) (filter even?))
