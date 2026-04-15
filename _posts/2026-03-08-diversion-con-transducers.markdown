@@ -134,7 +134,7 @@ Como combinamos todo esto?
   var result = transduce(
     new ArrayList<Integer>(), pipeline, (a, e) -> { a.add(e); return a; }, list);
 
-  println(result);
+  IO.println(result);
 ```
 
 El resultado es igual al que obteníamos con clojure: `[4, 6, 8, 10]`.
@@ -154,7 +154,7 @@ Y queda algo así:
 
   var result = toList(chain(map(x -> x + 2), filter(x -> x % 2 == 0)), list);
 
-  println(result);
+  IO.println(result);
 ```
 
 Si lo comparamos con los streams de Java vemos que queda algo muy parecido.
@@ -178,3 +178,5 @@ y también se pueden implementar window functions que no se han incluido en Java
 los gathers, con los transducers son triviales de implementar.
 
 Si tenéis curiosidad, aquí está el enlace a mi librería [purefun](https://github.com/tonivade/purefun).
+
+El ejemplo podéis verlo en funcionamiento en el [playground de Java](https://dev.java/p?id=07e32a14bd055f2168da32b1).
