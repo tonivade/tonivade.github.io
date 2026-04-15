@@ -108,7 +108,7 @@ Y ahora ya podemos definir `map` y `filter`:
 ```
 
 Ahora necesitamos una función para aplicar todo esto y generar un resultado. La función recibe
-el valor inicial del acmulador, el pipeline en sí, un reducer para añadir elementos al acumulador y
+el valor inicial del acumulador, el pipeline en sí, un reducer para añadir elementos al acumulador y
 finalmente la lista original con la entrada.
 
 ```java
