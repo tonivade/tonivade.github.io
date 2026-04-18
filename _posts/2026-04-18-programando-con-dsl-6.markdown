@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  Programando con DSLs en Java 25 (VI)
-date:   2026-04-18 22:00:00
+date:   2026-04-18 14:00:00
 categories: programming java functional-programming dsl monad
 ---
 
@@ -118,9 +118,9 @@ algún momento con un número `n` lo suficientemente algo, la pila se desborda.
 
 ```
   unsafeSum(10, 0)
-    unsafeSum(9, 10)
-      unsafeSum(8, 19)
-        ...
+  \-> unsafeSum(9, 10)
+     \-> unsafeSum(8, 19)
+        \-> ...
 ```
 
 Pues con tail-call optimization, el compilador detecta que la función se llama
@@ -143,7 +143,7 @@ permiten.
 programas recursivos libres de desbordamientos de pila. La implementación es muy
 sencilla:
 
-```
+```java
 sealed interface Trampoline<T> {
   record Done<T>(T value) implements Trampoline<T> {}
   record More<T>(Supplier<Trampoline<T>> next) implements Trampoline<T> {}
@@ -152,7 +152,7 @@ sealed interface Trampoline<T> {
 
 Y nos faltaría implementar el bucle de evaluación, queremos que esté libre
 de problemas de desbordamiento de pila por lo que no debemos implementarlo
-de manera iterativa, no recursiva.
+de manera recursiva, como hicimos para `Program`, sino iterativa.
 
 ```java
   default T eval() {
@@ -190,15 +190,15 @@ Con `Trampoline` también podemos escribir programas un poco más complejos, com
 el cálculo de la [sucesión de Fibonacci](https://es.wikipedia.org/wiki/Sucesi%C3%B3n_de_Fibonacci).
 Esta se calcula de esta manera:
 
-- fib(0) = 1
-- fib(1) = 1
-- fib(2) = fib(0) + fib(1) = 1 + 1 = 2
-- fib(3) = fib(1) + fib(2) = 1 + 2 = 3
-- fib(4) = fib(2) + fib(3) = 2 + 3 = 5
-...
-- fib(n) = fib(n - 2) + fib(n -1)
+- `fib(0) = 1`
+- `fib(1) = 1`
+- `fib(2) = fib(0) + fib(1) = 1 + 1 = 2`
+- `fib(3) = fib(1) + fib(2) = 1 + 2 = 3`
+- `fib(4) = fib(2) + fib(3) = 2 + 3 = 5`
 
-Con la implementación actual de `Trampoline` tal y como está, no se podría hacer, pero podemos
+Generalizando tenemos que: `fib(n) = fib(n - 2) + fib(n -1)`
+
+Con la definición actual de `Trampoline` tal y como está, no se podría implementar, pero podemos
 fácilmente adaptarlo para hacerlo funcionar. Veamos:
 
 ```java
@@ -331,7 +331,7 @@ Puede parecer todo un poco enrevesado, pero tiene mucho sentido.
 
 Ahora cómo aplicamos todo esto en nuestra función `eval` de `Program` que es de
 lo que va todo esto. Simplemente necesitamos generalizar lo que hemos hecho en
-`Trampoline`. En el caso de program necesitaremos dos diferentes stacks, uno
+`Trampoline`. En el caso de `Program` necesitaremos dos diferentes stacks, uno
 para cuando va todo bien y otro para cuando algo va mal. Los casos de `Success`
 y `Failure`, son equivalentes a `Done`, la diferencia es que ejecutan las
 funciones de una de las pilas. `Failure` de la pila de cuando algo va mal, y 
