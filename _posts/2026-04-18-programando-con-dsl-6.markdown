@@ -7,9 +7,9 @@ categories: programming java functional-programming dsl monad
 
 Como buen guionista de Hollywood, siempre hay que dejar abierto los finales de 
 las películas para poder hacer otra parte, si la película anterior tiene éxito.
-No es es que haya tenido mucho éxito con mis artículos, pero mientras a mi me
+No es que haya tenido mucho éxito con mis artículos, pero mientras a mi me
 siga divirtiendo escribirlos, no necesito más escusa. Asi que amenazo con
-continuar escribiendo sobre esto, no solo hoy, sino en un futuro.
+continuar escribiendo sobre esto, no solo hoy, sino en un futuro cercano.
 
 Si habéis estado atentos a los otro artículos, supongo que os habrá llamado la
 atención una cosa, y es que la implementación del método `eval` era recursiva.
