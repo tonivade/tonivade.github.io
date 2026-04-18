@@ -49,7 +49,7 @@ válida. Además aquí usamos muchas de las nuevas mejoras del lenguaje Java, pa
 matching, improved switch expressions, etc. Pero si tuviéramos un programa más complejo
 que fuera a su vez fuera recursivo, pues tendríamos un problema.
 
-Por ejemplo, queremos implementar una función muy sencilla que simplemente sume todos
+Por ejemplo, si queremos implementar una función muy sencilla que simplemente sume todos
 número sucesivos desde el uno hasta el número que queramos. Podríamos hacerlo de esta
 manera usando nuestra librería:
 
@@ -68,16 +68,16 @@ el método recibe dos parámetros, en número actual y el resultado de sumar los
 números anteriores. Y cuando `n` es '0` simplemente devolvemos la suma de los
 números anteriores como resultado.
 
-Probemos a ver qué pasa si ejecutamos esto:
+Probemos, a ver qué pasa si ejecutamos esto:
 
 ```java
 @Test
 void shouldBeStackSafe() {
-  var program = recursiveSum(100000, 0);
+  var program = recursiveSum(100_000, 0);
 
   var result = program.eval(null);
 
-  assertEquals(Either.right(705082704), result);
+  assertEquals(Either.right(705_082_704), result);
 }
 ```
 
@@ -136,7 +136,7 @@ hiciéramos un go-to al inicio principio de la función.
 ```
 
 De esta forma nuestra función estaría libre de desbordamientos de pila. Lamentablemente
-en Java eso no existe. Otros lenguajes de programación como Scala o Kotlin si lo
+en Java esto no existe. Otros lenguajes de programación como Scala o Kotlin si lo
 permiten.
 
 ¿Qué podemos hacer? Hay una estructura llamada trampolín que nos permitiría hacer
@@ -171,11 +171,11 @@ de manera recursiva, como hicimos para `Program`, sino iterativa.
 Ahora podríamos implementar nuestro programa de sumas usando `Trampoline`:
 
 ```java
-static Trampoline<Integer> safeSum(int n, int sum) {
+static Trampoline<Integer> recursiveSum(int n, int sum) {
   if (n == 0) {
     return new Done<>(sum);
   }
-  return new More<>(() -> safeSum(n - 1, n + sum));
+  return new More<>(() -> recursiveSum(n - 1, n + sum));
 }
 ```
 
@@ -264,7 +264,6 @@ static Trampoline<Integer> fib(int n) {
 Primero generamos el programa que genera la secuencia de Fibonacci de `n - 2`,
 luego el de `n - 1` y los combinamos usando `andThen`.
 
-
 ¿Cómo implementaríamos `eval` para soportar nuestro `AndThen`, y además
 hacerlo de tal manera que esté libre de desbordamientos de pila?
 
@@ -316,11 +315,11 @@ Para ello vamos a usar una estructura de datos que sea como una pila, en nuestro
 caso usaremos `Deque`. Encolamos la función `next` en la pila y asignamos
 `source` a `current`. Hay que hacer un cast para dejar contento al compilador.
 
-Así en la siguiente iteración del bucle se evaluará `source` y obtendremos el
+Así en la siguiente iteración del bucle, se evaluará `source` y obtendremos el
 valor de ejecutar `source`. Luego podremos ejecutar la función `next` para obtener 
 el siguiente programa.
 
-Ahora en el caso de `Done` tendremos que ir evaluando las funciones de la pila. 
+Ahora, en el caso de `Done`, tendremos que ir evaluando las funciones de la pila. 
 Si la pila está vacía, significa que ya hemos terminado y simplemente devolvemos el 
 valor de `Done`. Si la pila no está vacía, sacamos la primera función del `stack` y 
 la ejecutamos pasando el valor de `Done` como parámetro. Con eso obtenemos el siguiente 
@@ -329,12 +328,12 @@ del bucle.
 
 Puede parecer todo un poco enrevesado, pero tiene mucho sentido.
 
-Ahora cómo aplicamos todo esto en nuestra función `eval` de `Program` que es de
+Ahora cómo aplicamos todo esto en nuestra función `eval` de `Program`, que es de
 lo que va todo esto. Simplemente necesitamos generalizar lo que hemos hecho en
 `Trampoline`. En el caso de `Program` necesitaremos dos diferentes stacks, uno
 para cuando va todo bien y otro para cuando algo va mal. Los casos de `Success`
 y `Failure`, son equivalentes a `Done`, la diferencia es que ejecutan las
-funciones de una de las pilas. `Failure` de la pila de cuando algo va mal, y 
+funciones de una pila u otra. `Failure` de la pila de cuando algo va mal, y 
 `Success` de la pila de cuando todo va bien. Quedaría de esta manera:
 
 ```java
@@ -370,7 +369,7 @@ default Either<E, T> eval(S state) {
 Ahora nuestro programa original funcionaría sin ningún problema:
 
 ```java
-static Program<?, ?, Integer> recursiveSum(int n, int sum) {
+static Program<Void, Void, Integer> recursiveSum(int n, int sum) {
   if (n == 0) {
     return success(sum);
   }
@@ -414,7 +413,7 @@ static Program<Void, Void, Integer> fib(int n) {
 }
 ```
 
-Y una última cosa, que sino no lo digo exploto, esto no se podría mejorar?
+Y una última cosa, que sino no lo digo exploto, ¿esto no se podría mejorar?
 
 ```java
 pipe(fib2, i -> fib1.map(j -> i + j))
