@@ -112,6 +112,165 @@ Ahora bien, cómo podríamos mantener nuestro programa recursivo y hacerlo a su 
 computacionalmente eficiente. La respuesta es una técnica que se llama [memoization](https://en.wikipedia.org/wiki/Memoization)
 pero básicamente se trata de cachear las respuesta de una función.
 
+Empezaremos por definir una nueva extensión para `Program` que vamos a llamar `Memoized`:
 
+```java
+sealed interface Program<S, E, T> {
 
+  record Success<S, E, T>(T value) implements Program<S, E, T> {}
 
+  record Failure<S, E, T>(E error) implements Program<S, E, T> {}
+
+  record FlatMap<S, E, X, T>(Program<S, E, X> current, Function<X, Program<S, E, T>> next) implements Program<S, E, T> {}
+
+  record FlatMapError<S, X, E, T>(Program<S, X, T> current, Function<X, Program<S, E, T>> next) implements Program<S, E, T> {}
+
+  record Access<S, E, T>(Function<S, Program<S, E, T>> mapper) implements Program<S, E, T> {}
+
+  record Memoized<S, E, T>(Program<S, E, T> program) implements Program<S, E, T> {}
+}
+```
+
+Esto hace que tengamos que adaptar el método `eval`. Primero necesitaremos una estructura
+de datos para guardar los resultados cacheados.
+
+```java
+Map<Program<S, ?, ?>, Either<?, ?>> cache = new IdentityHashMap<>();
+```
+
+Vamos a usar [IdentityHashMap](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/IdentityHashMap.html) 
+que es un caso un tanto especial de un `HashMap`. Esta implementación
+no cumple con el contrato de `equals` y `hashCode`, y basa su implementación en `equals`. Para
+nuestro caso funcionará perfectamente.
+
+Como el resultar de evaluar un programa puede ir bien o mal, necesitaremos guardar en la cache
+objetos de tipo `Either`.
+
+Ahora necesitamos soportar el caso de la clase `Memoized`. Lo primero que tenemos que hacer
+es comprobar si está en la caché. En caso de que ya exista en la caché, actualizamos el valor 
+de `current` y de esa manera en la siguiente iteración se evaluará. Si no está en la cache
+la cosa se complica, ya que en todavía no se ha evaluado todavía el programa, por lo tanto
+cómo gestionamos esto?
+
+```java
+  // ...
+  } else if (current instanceof Memoized(var next)) {
+    if (cache.containsKey(next)) {
+      current = cache.get(next).fold(Program::success, Program::failure);
+    } else {
+      // TBC
+    }
+  }
+  //...
+```
+
+Podemos aprovechar el stack para de esta manera cuando el programa que queremos
+cachear se ejecute, de esa manera actualizamos la cache. Tendremos dos casos
+cuando todo va bien y cuando algo va mal. Y por último actualizamos `current` 
+para que se evalúe en la siguiente iteración del bucle, y en ese momento,
+actualizar la caché. 
+
+```java
+  // ...
+  } else if (current instanceof Memoized(var next)) {
+    if (cache.containsKey(next)) {
+      current = cache.get(next).fold(Program::failure, Program::success);
+    } else {
+      successStack.push(value -> {
+        cache.put(next, Either.right(value));
+        return success(value);
+      });
+      failureStack.push(error -> {
+        cache.put(next, Either.left(error));
+        return failure(error);
+      });
+      current = next;
+    }
+  }
+  //...
+```
+
+Volvamos entonces a nuestro programa, necesitaremos otra cache para en este caso
+generar la misma instancia de `Program` para cada valor de `n`.
+
+```java
+static final Map<Integer, Program<Void, Void, Integer>> cache = new HashMap<>();
+```
+
+Definimos otra función que use la caché. Usaremos el método `computeIfAbsent`, lo
+que significa que si no existe en la cache, se ejecutará la lambda que se pasa por
+parámetro. En nuestro caso, llamará al método `fib` y lo wrapeará en un Memoized.
+De esta forma este programa se ejecutará solo una vez, no importa las veces que se
+llame.
+
+```java
+static Program<Void, Void, Integer> fibMemoized(int n) {
+  return cache.computeIfAbsent(n, _ -> new Memoized<>(fib(n)));
+}
+```
+
+Ahora `fib` cambia levemente ya que tiene que llamar a `fibMemoized` para que
+obtenga una instancia del programa memoizado.
+
+```java
+static Program<Void, Void, Integer> fib(int n) {
+  if (n < 2) {
+    return success(1);
+  }
+  var fib2 = suspend(() -> fibMemoized(n - 2));
+  var fib1 = suspend(() -> fibMemoized(n - 1));
+  return zip(fib2, fib1, Integer::sum);
+}
+```
+
+De esta forma tenemos nuestro programa que calcula la secuencia de Fibonacci
+computacionalmente eficiente, y usando la notación Big O, pasaríamos de un
+`O(2^n)` a `O(n)`, es decir que es linealmente proporcional al valor de `n`
+lo cual es mucho más óptimo.
+
+Ahora la cuestión, ¿cómo podemos generalizar esto? Necesitaremos una función
+que use una hashMap para cachear los resultados:
+
+```java
+static <S, E, T, R> Function<T, Program<S, E, R>> memoize(Function<T, Program<S, E, R>> program) {
+  Map<T, Program<S, E, R>> cache = new HashMap<>();
+  return t -> cache.computeIfAbsent(t, program.andThen(Memoized::new));
+}
+```
+
+Aplicándolo a nuestro ejemplo tendríamos esto:
+
+```java
+static Function<Integer, Program<Void, Void, Integer>> fibMemoized = Program.memoize(n -> {
+  if (n < 2) {
+    return success(1);
+  }
+  var fib2 = suspend(() -> fibMemoized.apply(n - 2));
+  var fib1 = suspend(() -> fibMemoized.apply(n - 1));
+  return zip(fib2, fib1, Integer::sum);
+});
+```
+
+Esto tiene un aspecto estupendo, pero lamentablemente esto no funciona en Java. El
+compilador se queja de que el valor de `fibMemoized` no está definido por lo que no
+podemos volver a llamar a `fibMemoized` desde la definición de `fibMemoized`.
+
+Una pena, pero hay una forma muy sencilla de arreglarlo, si en lugar de una lambda
+creamos una clase anónima que implemente `Function` todo vuelve a funcionar:
+
+```java
+static Function<Integer, Program<Void, Void, Integer>> fibMemoized = Program.memoize(
+    new Function<Integer, Program<Void, Void, Integer>>() {
+      @Override
+      public Program<Void, Void, Integer> apply(Integer n) {
+        if (n < 2) {
+          return success(1);
+        }
+        var fib2 = suspend(() -> fibMemoized.apply(n - 2));
+        var fib1 = suspend(() -> fibMemoized.apply(n - 1));
+        return zip(fib2, fib1, Integer::sum);
+      }
+    });
+```
+
+Es un poco más verboso, pero a mi me vale.
