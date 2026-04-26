@@ -88,11 +88,11 @@ Se calculará lo siguiente:
 No sigo porque la cosa se pone complicada. Como se ve, cada iteración se multiplican por 2
 el número de operaciones, y el número de operaciones es proporcional al número
 de la secuencia de Fibonacci que queremos calcular, por lo tanto si queremos calcular
-el valor cuando `n = 10` el número de operaciones necesarias serán `2^10 = 1024`.
+el valor cuando `n = 10` el número de operaciones necesarias serán <code>2<sup>10</sup> = 1024</code>.
 Para `n = 20` serán `1048576` operaciones. No parece muy eficiente.
 
 Digamos que este algoritmo no es eficiente. Usando la notación 
-[Big O](https://en.wikipedia.org/wiki/Big_O_notation) sería `O(2^n)`. En
+[Big O](https://en.wikipedia.org/wiki/Big_O_notation) sería <code>O(2<sup>n</sup>)</code>. En
 ciencias de la computación esto nos viene a decir cuan eficiente es un algoritmo.
 Por ejemplo uno que fuera `O(1)` significaría que el algoritmo se ejecuta en un tiempo
 siempre constante. No importa que valor tenga `n`, siempre tarda lo mismo.
@@ -102,10 +102,10 @@ Otros valores usuales en orden de mejor a peor:
 - `O(log n)`: orden logarítmica.
 - `O(n)`: orden lineal.
 - `O(n log n)`: orden lineal logarítmica.
-- `O(n^2)`: orden cuadrática.
-- `O(n^3)`: orden cúbica.
+- <code>O(n<sup>2</sup>)</code>: orden cuadrática.
+- <code>O(n<sup>3</sup>)</code>: orden cúbica.
 - `O(n!)`: orden factorial.
-- `O(n^n)`: orden potencia exponencial.
+- <code>O(n<sup>n</sup>)</code>: orden potencia exponencial.
 
 Ahora bien, ¿cómo podríamos mantener nuestro programa recursivo y hacerlo a su vez
 computacionalmente eficiente? La respuesta es una técnica que se llama [memoization](https://en.wikipedia.org/wiki/Memoization), que básicamente se trata de cachear las respuesta de una función.
@@ -220,7 +220,7 @@ static Program<Void, Void, Integer> fib(int n) {
 
 De esta forma tenemos nuestro programa que calcula la secuencia de Fibonacci
 computacionalmente eficiente, y usando la notación Big O, pasaríamos de un
-`O(2^n)` a `O(n)`, es decir que es linealmente proporcional al valor de `n`,
+<code>O(2<sup>n</sup>)</code> a `O(n)`, es decir que es linealmente proporcional al valor de `n`,
 lo cual es mucho más óptimo.
 
 Ahora la cuestión, ¿cómo podemos generalizar esto? Necesitaremos una función
