@@ -43,7 +43,7 @@ directamente como si fuera cualquier otro comando `./hello.java`.
 Todo está muy chulo, pero se pueden hacer cosas todavía más chulas. Como por ejemplo
 ejecutar tests unitarios.
 
-```
+```java
 //DEPS org.assertj:assertj-core:3.27.7
 //DEPS org.junit.jupiter:junit-jupiter:6.0.3
 
@@ -106,12 +106,12 @@ Aquí tenemos un test unitario creado para la librería en la que hemos estado t
 en mis últimos artículos.
 
 Añadimos con la directiva `//DEP` las dependencias a junit y assertj usando las coordenadas
-de maven, de una manera muy similar a como hacemos en gradle.
+de maven, de una manera muy similar a como hacemos en gradle u otro gestor de paquetes.
 
 Con `//SOURCES` podemos añadir otros fichero java para que se compilen junto a la clase de
 test.
 
-La directiva `//JAVA 25+` lo que hace jbang es ver si tienes instalado una jdk compatible
+La directiva `//JAVA` lo que hace jbang es ver si tienes instalado una jdk compatible
 con la versión que necesitas. Si usas [sdkman](https://sdkman.io/), jbang buscará entre todas las versiones
 de java que tengas una compatible.
 
