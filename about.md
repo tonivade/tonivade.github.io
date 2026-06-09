@@ -13,6 +13,6 @@ Contact me at:
 
 * me@tonivade.es
 * https://github.com/tonivade
-* https://mastodon.social/@tonivade
+* https://social.tonivade.es/@tonivade
 
 I hope you enjoy my blog! Let's connect and share our knowledge. 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
