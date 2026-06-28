@@ -44,7 +44,7 @@ sealed interface Program<S, E, T> {
       } else if (current instanceof Forked(var next)) {
         var future = CompletableFuture.supplyAsync(
             () -> next.eval(state), ForkJoinPool.commonPool());
-        current = success((CompletableFuture<Either<Object, Object>>) future);
+        current = success(future);
       }
     }
   }
@@ -53,8 +53,7 @@ sealed interface Program<S, E, T> {
 
 En la implementación de `Forked` simplemente llamamos el método `eval` del `Program` previamente
 wrapeado pasando el mismo estado, pero en este caso, lo ejecutaremos de manera asíncrona creando
-un `CompletableFuture` que eventualmente generará el resutaldo de ejecutar ese programa. Es imprecindible
-hacer ese casting para dejar al compilador tranquilo.
+un `CompletableFuture` que eventualmente generará el resutaldo de ejecutar ese programa.
 
 Ya casi lo tenemos, es una implementación muy sencilla que no require nada especial.
 
