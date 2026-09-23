@@ -247,8 +247,6 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Thread)
 public class Bench {
 
-  private String text = "hello";
-
   @Benchmark
   public Integer iterative() {
     return ProgramTest.fib(20);
