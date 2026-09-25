@@ -271,5 +271,46 @@ static Function<Integer, Program<Void, Void, Integer>> fibMemoized = Program.mem
 
 Es un poco más verboso, pero a mi me vale.
 
+Pero antes de cerrar el capítulo hay una última cosa que podemos hacer para resolver
+el problema de una lambda que se llama a si misma. El código anterior, tiene el problema
+de que necesitamos crear explicitamente una implementación anónima de `Function`, y luego
+si las llamadas recursivas no se wrapean en un `suspend` terminamos teniendo errores
+en tiempo de ejecución muy extraños. Pero hay una manera de ocultar esto al usuario
+final.
+
+Necesitamos definir otra función que llamaremos `memoizeRecursive`. Al contrario de
+`memoize` recibe una `BiFunction`, el primer parámetro es la propia función, y el segundo
+el valor de la entrada.
+
+```java
+static <S, E, T, R> Function<T, Program<S, E, R>> memoizeRecursive(
+    BiFunction<Function<T, Program<S, E, R>>, T, Program<S, E, R>> program) {
+  final Map<T, Program<S, E, R>> cache = new HashMap<>();
+  return new Function<>() {
+    final Function<T, Program<S, E, R>> self = input -> suspend(() -> apply(input));
+
+    @Override
+    public Program<S, E, R> apply(T input) {
+      return cache.computeIfAbsent(input, key -> program.apply(self, key).memoized());
+    }      
+  };
+}
+```
+
+Ahora bien, creamos otra función que se llama a si misma pero wrappeada en un `suspend`.
+Luego esta función la pasamos como primer argumento a la `BiFunction` de entrada. De esta
+manera podemos implementar fibonacci de esta otra forma:
+
+```java
+Function<Integer, Program<Void, Void, Integer>> fibRecursive = Program.memoizeRecursive((self, n) -> {
+  if (n < 2) {
+    return success(1);
+  }
+  var fib2 = self.apply(n - 2);
+  var fib1 = self.apply(n - 1);
+  return zip(fib2, fib1, Integer::sum);
+});
+```
+
 Y eso es todo por hoy. Creo que ya he agotado la conversación sobre este tema, pero
 no descarto en un futuro volver a ello. Avisados estáis.
