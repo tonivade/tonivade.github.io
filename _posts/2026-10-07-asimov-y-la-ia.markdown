@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  Asimov y la IA
-date:   2026-06-27 14:00:00
+date:   2026-10-07 14:00:00
 categories: asimov ai
 ---
 
