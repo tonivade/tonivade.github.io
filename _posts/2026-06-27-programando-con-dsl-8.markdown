@@ -35,8 +35,7 @@ sealed interface Program<S, E, T> {
 
   default Either<E, T> eval(S state) {
     Program<S, ?, ?> current = this;
-    Deque<Function<Object, ? extends Program<S, ?, ?>>> failureStack = new ArrayDeque<>();
-    Deque<Function<Object, ? extends Program<S, ?, ?>>> successStack = new ArrayDeque<>();
+    Deque<? super Program<S, ?, ?>> stack = new ArrayDeque<>();
     Map<Program<S, ?, ?>, Program<S, ?, ?>> cache = new IdentityHashMap<>();
 
     while (true) {

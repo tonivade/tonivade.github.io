@@ -19,31 +19,49 @@ Para refrescar la memoria, aquí está la implementación de `eval` que desarrol
 ```java
 default Either<E, T> eval(S state) {
   Program<S, ?, ?> current = this;
-  Deque<Function<Object, ? extends Program<S, ?, ?>>> failureStack = new ArrayDeque<>();
-  Deque<Function<Object, ? extends Program<S, ?, ?>>> successStack = new ArrayDeque<>();
+  Deque<? super Program<S, ?, ?>> stack = new ArrayDeque<>();
 
   while (true) {
     if (current instanceof Success(var value)) {
-      if (successStack.isEmpty()) {
-        return Either.right((T) value);
+      boolean resumed = false;
+      while (!resumed) {
+        switch (stack.poll()) {
+          case null -> {
+            return Either.right((T) value);
+          }
+          case FlatMap(_, var nextFn) -> {
+            current = ((Function<Object, ? extends Program<S, ?, ?>>) nextFn).apply(value);
+            resumed = true;
+          }
+          default -> {}
+        }
       }
-      current = successStack.poll().apply(value);
     } else if (current instanceof Failure(var error)) {
-      if (failureStack.isEmpty()) {
-        return Either.left((E) error);
+      boolean resumed = false;
+      while (!resumed) {
+        switch (stack.poll()) {
+          case null -> {
+            return Either.left((E) error);
+          }
+          case FlatMapError(_, var nextFn) -> {
+            current = ((Function<Object, ? extends Program<S, ?, ?>>) nextFn).apply(error);
+            resumed = true;
+          }
+          default -> {}
+        }
       }
-      current = failureStack.poll().apply(error);
     } else if (current instanceof Access(var mapper)) {
       current = mapper.apply(state);
-    } else if (current instanceof FlatMap(var next, var mapper)) {
-      successStack.push((Function<Object, ? extends Program<S, ?, ?>>) mapper);
+    } else if (current instanceof FlatMap(var next, _)) {
+      successStack.push(current);
       current = next;
-    } else if (current instanceof FlatMapError(var next, var mapper)) {
-      failureStack.push((Function<Object, ? extends Program<S, ?, ?>>) mapper);
+    } else if (current instanceof FlatMapError(var next, _)) {
+      failureStack.push(current);
       current = next;
     }
   }
 }
+
 ```
 
 Y para demostrar que funcionaba pusimos dos ejemplos, un pequeño programa
@@ -125,16 +143,16 @@ Esto hace que tengamos que adaptar el método `eval`. Primero necesitaremos una 
 de datos para guardar los resultados cacheados.
 
 ```java
-Map<Program<S, ?, ?>, Either<?, ?>> cache = new IdentityHashMap<>();
+Map<Program<S, ?, ?>, Program<S, ?, ?>> cache = new IdentityHashMap<>();
 ```
 
 Vamos a usar [IdentityHashMap](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/IdentityHashMap.html) 
 que es un caso un tanto especial de un `HashMap`. Esta implementación
-no cumple con el contrato de `equals` y `hashCode`, y basa su implementación en `equals`. Para
-nuestro caso funcionará perfectamente.
-
-Como el resultar de evaluar un programa puede ir bien o mal, necesitaremos guardar en la cache
-objetos de tipo `Either`.
+no cumple con el contrato de `equals` y `hashCode`, y basa su implementación en el resultado de comparar 
+dos objetos usando `==`. Para nuestro caso funcionará perfectamente, ya que queremos almacenar el resultado
+de un programa asociado unívocamente a ese y únicamente a ese programa. Aunque
+haya dos programas que dan el mismo resultado, para este mapa serán objetos
+diferentes.
 
 Ahora necesitamos soportar el caso de la clase `Memoized`. Lo primero que tenemos que hacer
 es comprobar si está en la caché. En caso de que ya exista en la caché, actualizamos el valor 
@@ -146,7 +164,7 @@ la cosa se complica, ya que en todavía no se ha evaluado todavía el programa, 
   // ...
   } else if (current instanceof Memoized(var next)) {
     if (cache.containsKey(next)) {
-      current = cache.get(next).fold(Program::failure, Program::success);
+      current = cache.get(next);
     } else {
       // TBC
     }
@@ -164,16 +182,18 @@ actualizar la caché.
   // ...
   } else if (current instanceof Memoized(var next)) {
     if (cache.containsKey(next)) {
-      current = cache.get(next).fold(Program::failure, Program::success);
+      current = cache.get(next);
     } else {
-      successStack.push(value -> {
-        cache.put(next, Either.right(value));
-        return success(value);
-      });
-      failureStack.push(error -> {
-        cache.put(next, Either.left(error));
-        return failure(error);
-      });
+      stack.push(new FlatMap<>(null, value -> {
+        Program<S, Object, Object> success = success(value);
+        cache.put(next, success);
+        return success;
+      }));
+      stack.push(new FlatMapError<>(null, error -> {
+        Program<S, Object, Object> failure = failure(error);
+        cache.put(next, failure);
+        return failure;
+      }));
       current = next;
     }
   }

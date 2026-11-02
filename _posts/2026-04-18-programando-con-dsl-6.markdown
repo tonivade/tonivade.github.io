@@ -330,41 +330,68 @@ Puede parecer todo un poco enrevesado, pero tiene mucho sentido.
 
 Ahora cómo aplicamos todo esto en nuestra función `eval` de `Program`, que es de
 lo que va todo esto. Simplemente necesitamos generalizar lo que hemos hecho en
-`Trampoline`. En el caso de `Program` necesitaremos dos diferentes stacks, uno
-para cuando va todo bien y otro para cuando algo va mal. Los casos de `Success`
-y `Failure`, son equivalentes a `Done`, la diferencia es que ejecutan las
-funciones de una pila u otra. `Failure` de la pila de cuando algo va mal, y 
-`Success` de la pila de cuando todo va bien. Quedaría de esta manera:
+`Trampoline`. En el caso de `Program` necesitaremos un stack que soporte tanto el
+mapeo de valores cuando va todo bien y el mapeo de valores cuando algo va mal. 
+Los casos de `Success` y `Failure`, son equivalentes a `Done`, la diferencia es que 
+ejecutan las funciones de rama a partir de diferentes valores: `Failure` cuando va
+algo mal, es decir `E`, y `Success` cuando todo va bien, es decir, `T`.
+
+Si crearamos dos pilas separadas, al desenvolver la pila, cabría la posibilidad
+de aplicar de manera incorrecta la secuencia almacenada.
+
+Quedaría de esta manera:
 
 ```java
 default Either<E, T> eval(S state) {
   Program<S, ?, ?> current = this;
-  Deque<Function<Object, ? extends Program<S, ?, ?>>> failureStack = new ArrayDeque<>();
-  Deque<Function<Object, ? extends Program<S, ?, ?>>> successStack = new ArrayDeque<>();
+  Deque<? super Program<S, ?, ?>> stack = new ArrayDeque<>();
 
   while (true) {
     if (current instanceof Success(var value)) {
-      if (successStack.isEmpty()) {
-        return Either.right((T) value);
+      boolean resumed = false;
+      while (!resumed) {
+        switch (stack.poll()) {
+          case null -> {
+            return Either.right((T) value);
+          }
+          case FlatMap(_, var nextFn) -> {
+            current = ((Function<Object, ? extends Program<S, ?, ?>>) nextFn).apply(value);
+            resumed = true;
+          }
+          default -> {}
+        }
       }
-      current = successStack.poll().apply(value);
     } else if (current instanceof Failure(var error)) {
-      if (failureStack.isEmpty()) {
-        return Either.left((E) error);
+      boolean resumed = false;
+      while (!resumed) {
+        switch (stack.poll()) {
+          case null -> {
+            return Either.left((E) error);
+          }
+          case FlatMapError(_, var nextFn) -> {
+            current = ((Function<Object, ? extends Program<S, ?, ?>>) nextFn).apply(error);
+            resumed = true;
+          }
+          default -> {}
+        }
       }
-      current = failureStack.poll().apply(error);
     } else if (current instanceof Access(var mapper)) {
       current = mapper.apply(state);
-    } else if (current instanceof FlatMap(var next, var mapper)) {
-      successStack.push((Function<Object, ? extends Program<S, ?, ?>>) mapper);
+    } else if (current instanceof FlatMap(var next, _)) {
+      successStack.push(current);
       current = next;
-    } else if (current instanceof FlatMapError(var next, var mapper)) {
-      failureStack.push((Function<Object, ? extends Program<S, ?, ?>>) mapper);
+    } else if (current instanceof FlatMapError(var next, _)) {
+      failureStack.push(current);
       current = next;
     }
   }
 }
 ```
+
+Como se ve en el código, en el caso de `Success` hay que desenvolver la pila de
+tal manera que nos saltemos los `FlatMapError` ya que esos casos no aplican
+en esta rama. Y justo lo contrario en el caso de `Failure`, los `FlatMap` son
+los que no aplican en esta rama.
 
 Ahora nuestro programa original funcionaría sin ningún problema:
 
